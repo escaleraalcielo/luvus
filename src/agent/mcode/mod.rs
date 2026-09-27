@@ -1,18 +1,28 @@
 //! Native MiniMax Code (`mcode`) support.
 //!
-//! MiniMax Code ships a `mcode` executable that launches a Node runtime on
-//! `@minimax-ai/code/cli.js`, plus a `mcode-tools` companion binary. Its runtime
-//! data lives in one directory — `~/.minimax` by default, or whatever
-//! `MINIMAX_DATA_DIR` / `MAVIS_DATA_DIR` selects.
+//! MiniMax Code ships `mcode` and `mcode-tools` launchers that run the
+//! `@minimax-ai/code` package, and the interactive agent itself runs as a native
+//! `minimax-code` binary. See [`DISTINCT_IDENTITIES`] for the evidence each one
+//! relies on.
 //!
-//! Luvus does **not** open MiniMax Code's private SQLite runtime state, so
-//! there is no session discovery: `luvus agent resume <id>` needs a session id
-//! that was already reported by a pane, and only
-//! `luvus pane report --agent mcode --session <id>` can supply one. A known id
-//! resumes with the documented `mcode --session <id>` command. The dated
-//! `manifest.json` files under `v2/sessions/` carry a trustworthy `sessionId`,
-//! but their only workspace association lives in that SQLite index, and the
-//! working directory in the transcript is prose — never a source of identity.
+//! Its runtime data lives in one directory. Upstream resolves it as a non-empty
+//! `MINIMAX_DATA_DIR`, then a non-empty `MAVIS_DATA_DIR`, then the default
+//! `~/.minimax`; that is the order [`data_dir_override`] reproduces. Upstream can
+//! also scope the default per profile (`~/.minimax-<profile>`), but a profile is
+//! selected only by an internal, legacy-gated `__MAVIS_RUNTIME_PROFILE` variable,
+//! a `--profile` daemon argument, or its own git auto-detection. None of those
+//! is a documented user setting, so Luvus resolves the documented contract and
+//! does not guess at the internal one.
+//!
+//! Luvus does **not** open MiniMax Code's private SQLite runtime state (its
+//! `better-sqlite3` store), so there is no session discovery:
+//! `luvus agent resume <id>` needs a session id that was already reported by a
+//! pane, and only `luvus pane report --agent mcode --session <id>` can supply
+//! one. A known id resumes with the documented `mcode --session <id>` command.
+//! The dated `manifest.json` files under `v2/sessions/` carry a trustworthy
+//! `sessionId`, but their only workspace association lives in that SQLite index,
+//! and the working directory in the transcript is prose — never a source of
+//! identity.
 
 use std::path::{Path, PathBuf};
 
@@ -89,9 +99,9 @@ pub(super) const DESCRIPTOR: AgentDescriptor = AgentDescriptor {
 pub(crate) const DISTINCT_IDENTITIES: &[&str] =
     &["minimax-code", "mcode", "mcode-tools", "minimax code"];
 
-/// MiniMax Code's runtime data directory, honoring its own overrides. It reads
-/// `MINIMAX_DATA_DIR` first and then the legacy `MAVIS_DATA_DIR` spelling, and
-/// trims each value the same way its own runtime does.
+/// MiniMax Code's runtime data directory override, honoring its own documented
+/// order: a non-empty `MINIMAX_DATA_DIR` first, then a non-empty
+/// `MAVIS_DATA_DIR`, each trimmed exactly as upstream trims it.
 pub(crate) fn data_dir_override() -> Option<PathBuf> {
     ["MINIMAX_DATA_DIR", "MAVIS_DATA_DIR"]
         .into_iter()
