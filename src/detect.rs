@@ -1756,6 +1756,10 @@ Would you like to proceed?
             // The companion binary and the plain executable.
             "/Users/me/.minimax/bin/mcode-tools",
             "/opt/homebrew/bin/mcode",
+            // What a real running agent actually presents as: the launcher execs
+            // a native binary under this name, with no arguments to inspect.
+            "minimax-code",
+            r#"C:\Users\me\.minimax-code\bin\minimax-code"#,
         ] {
             assert_eq!(
                 manifests.agent_in_processes(&[command.into()]),

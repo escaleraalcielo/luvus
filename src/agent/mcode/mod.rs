@@ -79,9 +79,15 @@ pub(super) const DESCRIPTOR: AgentDescriptor = AgentDescriptor {
 };
 
 /// Brand spellings that are unmistakable in any evidence, including screen
-/// output. `mcode-tools` is listed explicitly so the companion binary resolves
-/// to the same agent even if its name is ever read apart from the CLI.
-pub(crate) const DISTINCT_IDENTITIES: &[&str] = &["mcode", "mcode-tools", "minimax code"];
+/// output.
+///
+/// `minimax-code` is what a running agent actually presents as: the launcher
+/// execs a native binary under that name, so it is the identity a real pane
+/// exposes. The hyphenated form must be listed explicitly because the spaced
+/// `minimax code` brand spelling never matches it. `mcode-tools` names the
+/// companion CLI, whose dedicated ACP plugin process is reported separately.
+pub(crate) const DISTINCT_IDENTITIES: &[&str] =
+    &["minimax-code", "mcode", "mcode-tools", "minimax code"];
 
 /// MiniMax Code's runtime data directory, honoring its own overrides. It reads
 /// `MINIMAX_DATA_DIR` first and then the legacy `MAVIS_DATA_DIR` spelling, and
@@ -175,6 +181,9 @@ mod tests {
             DESCRIPTOR.identity.interpreter_packages,
             ["@minimax-ai/code"]
         );
+        // A running agent presents as the native `minimax-code` binary, so that
+        // hyphenated spelling has to be trustworthy on its own.
+        assert!(DESCRIPTOR.identity.distinct.contains(&"minimax-code"));
         assert!(DESCRIPTOR.identity.distinct.contains(&"mcode"));
         // `code` is the shared basename of many unrelated npm packages.
         assert!(!DESCRIPTOR.identity.distinct.contains(&"code"));

@@ -287,7 +287,7 @@ mod tests {
             ("devin", &[][..], &["devin"][..]),
             (
                 "mcode",
-                &["mcode", "mcode-tools", "minimax code"][..],
+                &["minimax-code", "mcode", "mcode-tools", "minimax code"][..],
                 &[][..],
             ),
         ];
