@@ -11,8 +11,8 @@ back after a restart, all without wrapping or modifying the agents themselves.
 
 Every pane running a recognized agent (Claude Code, Copilot, Codex, opencode,
 Kimi, Grok, Hermes CLI, Letta Code, Muse Code, Arc Studio CLI, Pi, Oh My Pi (OMP),
-Cursor, Gemini, Qwen, Kilo Code, Kiro, Aider, Amp, Droid, Devin, or fx) appears
-in the sidebar with a live state:
+Cursor, Gemini, Qwen, Kilo Code, Kiro, Aider, Amp, Droid, Devin, MiniMax Code
+(mcode), or fx) appears in the sidebar with a live state:
 
 | State | Meaning | How it's detected |
 |---|---|---|
@@ -85,7 +85,8 @@ Click a session row to select it and update the Selected Agent panel. Use
 | Gemini and Qwen | project chat records |
 | fx | session usage snapshot |
 
-Aider, OpenCode V2, Kilo Code, Kiro, Cursor, Amp, Droid, Muse, Devin, Letta Code, Arc Studio CLI, and
+Aider, OpenCode V2, Kilo Code, Kiro, Cursor, Amp, Droid, Muse, Devin, Letta Code, Arc Studio CLI,
+MiniMax Code, and
 manifest-defined agents still receive live identity and state detection,
 but show `—` for usage until they expose a stable per-session counter or report
 one through an integration. Luvus never estimates tokens from transcript text.
@@ -154,6 +155,7 @@ not sufficient, and Luvus runs the agent's own resume command:
 | Cursor | resume command (when the session id is known) |
 | Kilo Code | `kilo --session <id>` (when the exact session id is known) |
 | Devin | its exact session report from the optional integration, resumed with `devin --resume <id>` |
+| MiniMax Code (mcode) | `mcode --session <id>` (when the exact session id is known) |
 
 OpenCode V2 now runs under the canonical `opencode` executable; the former
 `opencode2` preview name is accepted as an alias. The optional integration
@@ -225,6 +227,15 @@ without it, use `luvus pane report --agent devin --session <id>`.
 Muse Code supports native detection and resume, but not **Fork to New Pane**.
 Its `/fork` command exists only inside the active TUI, and its CLI refuses to
 resume the same live session in a sibling pane.
+
+MiniMax Code has the same boundary as Kilo Code and Devin, without fork. Luvus
+recognizes the `mcode` and `mcode-tools` executables and the exact
+`@minimax-ai/code` package, but it does not open MiniMax Code's private SQLite
+runtime state to enumerate sessions, so its sessions are never listed as
+resumable and `luvus agent resume <id>` cannot find them. Bind a pane with
+`luvus pane report --agent mcode --session <id>`, which restores as
+`mcode --session <id>`. Session Center branching is internal to its TUI, so
+there is no native fork.
 
 Hermes CLI has the same external boundary. Luvus can resume a session whose
 exact identity was reported and persisted by its integration, but Hermes

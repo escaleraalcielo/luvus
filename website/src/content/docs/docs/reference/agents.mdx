@@ -22,6 +22,7 @@ description: What luvus supports per agent, covering live status, session resume
 | Cursor | ✓ | resume command | no | no |
 | Kilo Code | ✓ | with exact session ID | with exact session ID | no |
 | Devin | ✓ | ✓ with integration | no | session only |
+| MiniMax Code (mcode) | ✓ | resume command | no | no |
 | Gemini | ✓ | no | no | no |
 | Aider | ✓ | no | no | no |
 | Amp | ✓ | no | no | no |
@@ -126,6 +127,20 @@ testnet.
   sessions and there is no native fork. Automation profiles are not declared
   yet.
 
+  MiniMax Code is detected through its `mcode` and `mcode-tools` executables and
+  the exact `@minimax-ai/code` package identity, so its official installer, a
+  global npm install, and the Windows path forms are all recognized. Luvus
+  restores a known MiniMax Code session with the documented
+  `mcode --session <id>`. Its dated session manifests record the session ID but
+  not the workspace, and the only structured workspace index is its private
+  SQLite runtime state, so Luvus does not open it and does not discover
+  sessions: bind a pane with `luvus pane report --agent mcode --session <id>`.
+  Session Center branching is internal to its TUI, so there is no native fork.
+  Scheduled MiniMax Code workers are available only with explicit
+  **Full access**, mapped to `mcode exec --permission full`; read-only and
+  workspace automation are rejected because that runner escalates to an
+  approval request only a TUI or ACP host can answer.
+
   Hermes installs `~/.hermes/plugins/luvus-agent-state`, or the equivalent
   directory under `HERMES_HOME`, and enables only that plugin in
   `config.yaml`. Its callbacks report each exact CLI session once. Native
@@ -155,9 +170,10 @@ The shared `~/.agents/skills/luvus/` destination is understood by Codex,
 GitHub Copilot CLI, Gemini CLI, Pi, Cursor, Amp, Droid, fx, Kilo Code, and
 Devin. Luvus uses dedicated native destinations for Claude Code, OpenCode,
 Kimi Code CLI, Grok Build, Hermes CLI, Letta Code, Qwen Code, Oh My Pi
-(omp), and Kiro. Aider does not expose a native Agent Skills installation
-directory, so use `luvus skill show` when an Aider conversation needs the
-instructions.
+(omp), Kiro, and MiniMax Code (`~/.minimax/skills/luvus`, or the directory
+selected by `MINIMAX_DATA_DIR`). Aider does not expose a native Agent Skills
+installation directory, so use `luvus skill show` when an Aider conversation
+needs the instructions.
 
 `luvus skill status` reports the bundled release separately from its managed
 filesystem installations. Codex marketplace plugins are managed by Codex and

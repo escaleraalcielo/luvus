@@ -541,6 +541,14 @@ surface:
   hook that reports only the exact conversation ID. Detection remains native.
   Luvus does not inspect Letta memory, credentials, conversations, or cloud
   state, and does not advertise native fork or scheduled automation for Letta.
+- For MiniMax Code (`mcode`), Luvus recognizes the `mcode` and `mcode-tools`
+  executables and the exact `@minimax-ai/code` package. It does not open the
+  private SQLite runtime state, so sessions are never listed as resumable and
+  `luvus agent resume <id>` cannot find them; bind a pane with
+  `luvus pane report --agent mcode --session <id>`, which restores as
+  `mcode --session <id>`. There is no native fork, and scheduled automation is
+  offered only for an explicit `full_access` selection because its reviewed
+  unattended command is `mcode exec --permission full`.
 - Subscribe to events only for a live monitoring request. Stop when its
   condition is satisfied and never retain an unbounded stream.
 

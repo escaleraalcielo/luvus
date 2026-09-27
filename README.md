@@ -120,6 +120,7 @@ Keyboard → Keyboard Shortcuts → Input Sources** to free `Ctrl+Space`.
 | Cursor | ✓ | resume command | No |
 | Kilo Code | ✓ | exact-ID resume | No |
 | Devin | ✓ | ✓ with integration | session only |
+| MiniMax Code (mcode) | ✓ | resume command | No |
 | Gemini · Aider · Amp · Droid · Qwen · Kiro | ✓ | No | No |
 
 Live status needs no agent integration. See the

@@ -1744,6 +1744,56 @@ Would you like to proceed?
     }
 
     #[test]
+    fn mcode_identity_matches_its_cli_and_scoped_node_package() {
+        let manifests = Manifests::builtin();
+        for command in [
+            // Official self-installing release: a shell wrapper that execs a
+            // Node runtime on the scoped package's entrypoint.
+            "node /Users/me/.minimax-code/releases/0.5.5/lib/node_modules/@minimax-ai/code/cli.js",
+            // Global npm install of the same package.
+            "node /usr/local/lib/node_modules/@minimax-ai/code/cli.js",
+            r#""C:\Program Files\nodejs\node.exe" "C:\Users\Ada Lovelace\AppData\Roaming\npm\node_modules\@minimax-ai\code\cli.js""#,
+            // The companion binary and the plain executable.
+            "/Users/me/.minimax/bin/mcode-tools",
+            "/opt/homebrew/bin/mcode",
+        ] {
+            assert_eq!(
+                manifests.agent_in_processes(&[command.into()]),
+                Some("mcode".into()),
+                "failed to recognize {command}"
+            );
+        }
+        // A same-named binary from another publisher, and an unrelated package
+        // whose basename is also `code`, must not inherit MiniMax Code.
+        for impostor in [
+            "/usr/local/bin/mcode-helper --serve",
+            "node /opt/node_modules/@other/code/cli.js",
+            r#"node C:\Users\me\AppData\Roaming\npm\node_modules\@vendor\code\cli.js"#,
+        ] {
+            assert_eq!(
+                manifests.agent_in_processes(&[impostor.into()]),
+                None,
+                "must not identify MiniMax Code: {impostor}"
+            );
+        }
+        // Prose that merely contains the product name stays a shell.
+        let incidental = classify(
+            Some("zsh"),
+            "the decode step remcodes the buffer before the run",
+            true,
+            false,
+            "zsh",
+            "",
+            &[],
+            &manifests,
+        );
+        assert_eq!(
+            incidental.agent, "zsh",
+            "screen prose must not name MiniMax Code"
+        );
+    }
+
+    #[test]
     fn arc_studio_identity_matches_its_cli_and_scoped_node_package() {
         let manifests = Manifests::builtin();
         for command in [

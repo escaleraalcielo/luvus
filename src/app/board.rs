@@ -4403,6 +4403,7 @@ mod tests {
             ("kiro", "kiro-cli"),
             ("letta", "letta -p"),
             ("muse", "muse"),
+            ("mcode", "mcode"),
             ("omp", "omp"),
             ("opencode", "opencode --prompt"),
             ("pi", "pi"),
@@ -4867,9 +4868,10 @@ mod tests {
     fn automation_agent_picker_keeps_all_launch_capable_agents_visible() {
         use crate::automation::AutomationAccess;
 
-        assert_eq!(automation_agent_choices().len(), 18);
+        assert_eq!(automation_agent_choices().len(), 19);
         assert!(automation_agent_choices().contains(&"kilo"));
         assert!(automation_agent_choices().contains(&"pi"));
+        assert!(automation_agent_choices().contains(&"mcode"));
         assert!(!automation_agent_choices().contains(&"antigravity"));
         assert!(!automation_agent_choices().contains(&"amp"));
 

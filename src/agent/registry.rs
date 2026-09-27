@@ -24,6 +24,7 @@ pub(crate) static BUILTINS: &[&AgentDescriptor] = &[
     &super::pi::DESCRIPTOR,
     &super::fx::DESCRIPTOR,
     &super::devin::DESCRIPTOR,
+    &super::mcode::DESCRIPTOR,
 ];
 
 // Preserve the current Settings and CLI presentation order independently of
@@ -176,6 +177,14 @@ mod tests {
         assert!(!opencode.supports(AutomationAccess::ReadOnly));
         assert!(!opencode.supports(AutomationAccess::Workspace));
         assert!(opencode.supports(AutomationAccess::FullAccess));
+
+        // MiniMax Code's one-shot `exec` runner escalates to an approval request
+        // that only a TUI or ACP host can answer, so only the explicit
+        // full-access policy is declared.
+        let mcode = find("mcode").unwrap().automation.unwrap();
+        assert!(!mcode.supports(AutomationAccess::ReadOnly));
+        assert!(!mcode.supports(AutomationAccess::Workspace));
+        assert!(mcode.supports(AutomationAccess::FullAccess));
     }
 
     #[test]
@@ -227,6 +236,8 @@ mod tests {
             find("ANTIGRAVITY-CLI").map(|agent| agent.id),
             Some("antigravity")
         );
+        assert_eq!(find("minimax-code").map(|agent| agent.id), Some("mcode"));
+        assert_eq!(find("MCode").map(|agent| agent.id), Some("mcode"));
         assert!(find("not-an-agent").is_none());
     }
 
@@ -274,6 +285,11 @@ mod tests {
             ("pi", &["pi-coding-agent"][..], &["pi"][..]),
             ("fx", &[][..], &["fx"][..]),
             ("devin", &[][..], &["devin"][..]),
+            (
+                "mcode",
+                &["mcode", "mcode-tools", "minimax code"][..],
+                &[][..],
+            ),
         ];
         assert_eq!(actual, expected);
         assert!(BUILTINS.iter().all(|descriptor| {
@@ -311,6 +327,7 @@ mod tests {
                 "pi",
                 "fx",
                 "devin",
+                "mcode",
             ]
         );
 

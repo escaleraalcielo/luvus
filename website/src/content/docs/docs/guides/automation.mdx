@@ -230,6 +230,7 @@ behalf.
 | Oh My Pi | yes | yes | yes |
 | Pi | yes | no | no |
 | fx | no | yes | yes |
+| MiniMax Code (mcode) | no | no | yes |
 
 Luvus also detects Antigravity, Amp, Devin, and Letta Code, but they are not
 available as new automation workers. Antigravity, Amp, and Letta Code do not
@@ -242,6 +243,13 @@ Kilo Code currently exposes one reviewed unattended profile: **Full access**,
 launched as `kilo run --auto`. Kilo documents that `--auto` may approve actions
 not explicitly denied, so Luvus does not present it as read-only or workspace
 access and rejects those combinations before creating worker resources.
+
+MiniMax Code exposes one reviewed unattended profile: **Full access**, launched
+as `mcode exec --permission full`. Its one-shot runner also offers `smart` and
+`off`, but `smart` still escalates to an approval request that only a TUI or ACP
+host can answer, and `off` is not a read-only or workspace-scoped switch. Luvus
+therefore offers read-only and workspace automation for MiniMax Code as
+unavailable rather than approximating them.
 
 ## Schedule types
 

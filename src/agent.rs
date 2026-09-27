@@ -33,6 +33,7 @@ pub(crate) mod kilo;
 pub(crate) mod kimi;
 pub(crate) mod kiro;
 pub(crate) mod letta;
+pub(crate) mod mcode;
 pub(crate) mod muse;
 pub(crate) mod omp;
 pub(crate) mod opencode;

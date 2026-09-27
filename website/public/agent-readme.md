@@ -377,6 +377,14 @@ discovery rather than inferring support from an agent name.
   only the exact Devin session ID selected in that pane, including after
   `/clear` or an in-TUI `/resume`. Detection remains native, and Luvus does not
   open Devin's private session database.
+- MiniMax Code is detected through the official `mcode` and `mcode-tools`
+  commands and the exact `@minimax-ai/code` package. Resume uses
+  `mcode --session <id>` only when Luvus already has the exact session ID;
+  Luvus does not open its private SQLite runtime state, so its sessions are
+  never listed as resumable and `luvus agent resume <id>` cannot find them.
+  There is no native fork, and a scheduled MiniMax Code worker requires the
+  user's explicit `full_access` selection because its reviewed unattended
+  command is `mcode exec --permission full`.
 
 Do not claim every shell command resumes after restart. Do not guess native
 session IDs. List sessions and use the exact returned identifier.

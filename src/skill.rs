@@ -64,10 +64,12 @@ pub enum SkillHost {
     Omp,
     Hermes,
     Letta,
+    /// MiniMax Code, which loads skills from its own runtime data directory.
+    Mcode,
 }
 
 impl SkillHost {
-    const ALL: [Self; 10] = [
+    const ALL: [Self; 11] = [
         Self::Shared,
         Self::Claude,
         Self::Opencode,
@@ -78,6 +80,7 @@ impl SkillHost {
         Self::Omp,
         Self::Hermes,
         Self::Letta,
+        Self::Mcode,
     ];
 
     pub fn as_str(self) -> &'static str {
@@ -92,6 +95,7 @@ impl SkillHost {
             Self::Omp => "omp",
             Self::Hermes => "hermes",
             Self::Letta => "letta",
+            Self::Mcode => "mcode",
         }
     }
 
@@ -392,12 +396,18 @@ fn target_dir_at(host: SkillHost, home: &Path, xdg_config: Option<&Path>) -> Pat
         SkillHost::Omp => crate::agent::omp::default_skill_dir_at(home),
         SkillHost::Hermes => home.join(".hermes").join("skills").join("luvus"),
         SkillHost::Letta => home.join(".letta").join("skills").join("luvus"),
+        SkillHost::Mcode => crate::agent::mcode::default_skill_dir_at(home),
     }
 }
 
 fn target_dir(host: SkillHost) -> Result<PathBuf> {
     if host == SkillHost::Omp {
         return crate::agent::omp::skill_dir();
+    }
+    // MiniMax Code can relocate its whole runtime data directory, so resolve
+    // its own override instead of assuming the home-relative default.
+    if host == SkillHost::Mcode {
+        return Ok(crate::agent::mcode::skill_dir()?);
     }
     let home = crate::platform::home_dir().ok_or_else(|| anyhow!("home directory not found"))?;
     if host == SkillHost::Claude {
@@ -557,6 +567,7 @@ fn host_commands(host: SkillHost) -> &'static [&'static str] {
         SkillHost::Omp => &["omp"],
         SkillHost::Hermes => &["hermes"],
         SkillHost::Letta => &["letta"],
+        SkillHost::Mcode => &["mcode", "mcode-tools"],
     }
 }
 
@@ -603,6 +614,7 @@ fn host_config_dirs(
             .map(Path::to_path_buf)
             .unwrap_or_else(|| home.join(".hermes"))],
         SkillHost::Letta => vec![home.join(".letta")],
+        SkillHost::Mcode => vec![home.join(".minimax")],
     }
 }
 
@@ -619,6 +631,12 @@ fn host_detected(host: SkillHost, state: &SkillState, target: &Path) -> Result<b
         .filter(|value| !value.is_empty())
         .map(PathBuf::from);
     if host == SkillHost::Omp && crate::agent::omp::agent_dir().is_ok_and(|path| path.is_dir()) {
+        return Ok(true);
+    }
+    // MiniMax Code's data directory can move, so confirm the resolved one
+    // before falling back to the home-relative default.
+    if host == SkillHost::Mcode && crate::agent::mcode::data_dir().is_some_and(|path| path.is_dir())
+    {
         return Ok(true);
     }
     Ok(any_dir(&host_config_dirs(
@@ -1161,6 +1179,10 @@ mod tests {
         assert_eq!(
             target_dir_at(SkillHost::Letta, home, None),
             PathBuf::from("/home/tester/.letta/skills/luvus")
+        );
+        assert_eq!(
+            target_dir_at(SkillHost::Mcode, home, None),
+            PathBuf::from("/home/tester/.minimax/skills/luvus")
         );
         assert_eq!(SkillHost::Shared.state_key(), "codex");
     }
